@@ -6,13 +6,6 @@
 //
 
 #import "AppDelegate.h"
-//#include "fst/print.h"
-//#include <iostream>
-
-//@interface AppDelegate ()
-//
-//
-//@end
 
 @implementation AppDelegate
 
@@ -48,7 +41,18 @@ NSLog(@"The code runs through here!");
   // Make the window visible.
 	[_ns_window makeKeyAndOrderFront:self];
 	[_ns_window center];
-	[_ns_window orderFrontRegardless];
+//	[_ns_window orderFrontRegardless];
+ 
+ 
+ NSWindow* w = [[NSWindow alloc] initWithContentRect:CGRectMake(0, 0, 200, 200)
+			styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable backing:NSBackingStoreBuffered defer:YES];
+
+		[w setTitle:@"test dsdsad"];
+  
+    View* view = [[View alloc] initWithFrame:CGRectMake(0, 0, 200, 200)];
+    [w setContentView:view];
+//    [w center];
+    [w orderFrontRegardless];
 }
 
 

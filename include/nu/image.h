@@ -33,12 +33,12 @@
 
 #pragma once
 
+#include "nu/size.h"
+
 #ifdef __APPLE__
 #include <CoreGraphics/CoreGraphics.h>
 namespace nu {
 using native_image = CGImageRef;
-// using const_native_path = CGPathRef;
-// using native_path_value_type = CGFloat;
 } // namespace nu.
 #endif // __APPLE__
 
@@ -47,6 +47,7 @@ class image {
 public:
   image() = default;
   image(const char* filename);
+  image(const char* filename, float scale_factor);
   image(const image& img);
   image(image&& img);
   ~image();
@@ -54,11 +55,18 @@ public:
   image& operator=(const image& img);
   image& operator=(image&& img);
 
+  bool is_valid() const;
+
+  nu::fsize get_size() const;
+
+  float get_scale_factor() const { return _scale_factor; }
+
   inline native_image get_native_image() { return _image; }
   inline native_image get_native_image() const { return _image; }
 
 private:
   native_image _image = nullptr;
+  float _scale_factor = 1;
 };
 
 } // namespace nu.

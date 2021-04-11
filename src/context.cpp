@@ -58,10 +58,18 @@ void context::fill_path(const nu::path& p) {
 }
 
 void context::draw_image(const nu::image& img, const nu::frect& rect) {
+  CGContextTranslateCTM(_context, rect.x, rect.y);
   flip(_context, rect.height);
-  CGContextDrawImage(_context, CGRectMake(rect.x, rect.y, rect.width, rect.height), img.get_native_image());
+  CGContextDrawImage(_context, CGRectMake(0, 0, rect.width, rect.height), img.get_native_image());
   flip(_context, rect.height);
+  CGContextTranslateCTM(_context, -rect.x, -rect.y);
 }
+
+// void context::draw_image(const nu::image& img, const nu::frect& rect) {
+////  flip(_context, rect.height);
+//  CGContextDrawImage(_context, CGRectMake(rect.x, rect.y, rect.width, rect.height), img.get_native_image());
+////  flip(_context, rect.height);
+//}
 
 void context::banana(const nu::path& p, const nu::fpoint& pos) {
   CGLayerRef layer = CGLayerCreateWithContext(_context, CGSize{ 100, 100 }, nullptr);

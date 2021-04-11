@@ -256,6 +256,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   "-framework Cocoa"
 )
 
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+  NU_RESOURCES_DIRECTORY="${NU_RESOURCES_DIRECTORY}"
+)
 # target_link_libraries(${PLUGIN_NAME} PRIVATE
 #     #AudioPluginData #If we 'd created a binary data target, we' d link to it here
 #     juce::juce_audio_utils

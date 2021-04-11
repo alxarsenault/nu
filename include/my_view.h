@@ -70,4 +70,6 @@ private:
   my_view_content_0 _c0;
   my_view_content_0 _c00;
   my_view_content_1 _c1;
+  
+  nu::image _img;
 };

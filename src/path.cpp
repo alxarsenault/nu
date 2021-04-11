@@ -3,11 +3,8 @@
 namespace nu {
 #ifdef __APPLE__
 static inline CGPoint to_cg_point(const path::point& p) { return *(const CGPoint*)(&p); }
-
 static inline CGRect to_cg_rect(const path::rect& r) { return *(const CGRect*)(&r); }
-
 static inline path::point to_fst_point(const CGPoint& p) { return *(const path::point*)(&p); }
-
 static inline path::rect to_fst_rect(const CGRect& r) { return *(const path::rect*)(&r); }
 
 path::path() { _path = CGPathCreateMutable(); }
@@ -58,17 +55,6 @@ bool path::operator==(const path& p) const {
 
 bool path::operator!=(const path& p) const { return !operator==(p); }
 
-//   path::operator bool() const {
-//    return !is_empty();
-//  }
-
-//   const_native_path path::get_native_path() const {
-//    return _path;
-//  }
-
-//
-//
-//
 bool path::is_empty() const { return CGPathIsEmpty(_path); }
 
 path::point path::get_current_point() const { return to_fst_point(CGPathGetCurrentPoint(_path)); }
@@ -146,7 +132,6 @@ void path::add_rounded_rect(const path::rect& r, const path::size& corner_size) 
   CGPathAddRoundedRect(_path, nullptr, to_cg_rect(r), corner_size.width, corner_size.height);
 }
 
-/// @param angle_range in radians.
 void path::add_arc(const path::point& center, value_type radius, const path::range& angle_range, bool clockwise) {
   CGPathAddArc(_path, nullptr, center.x, center.y, radius, angle_range.min, angle_range.max, clockwise);
 }
