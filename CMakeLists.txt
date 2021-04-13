@@ -237,7 +237,7 @@ set(NU_RESOURCES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 
 # All sources.
 file(GLOB_RECURSE NU_INCLUDE_FILES "${NU_INCLUDE_DIRECTORY}/*.h")
-file(GLOB_RECURSE NU_SOURCE_FILES "${NU_SRC_DIRECTORY}/*.cpp" "${NU_SRC_DIRECTORY}/*.m" "${NU_SRC_DIRECTORY}/*.mm")
+file(GLOB_RECURSE NU_SOURCE_FILES "${NU_SRC_DIRECTORY}/*.cpp" "${NU_SRC_DIRECTORY}/*.m" "${NU_SRC_DIRECTORY}/*.mm" "${NU_SRC_DIRECTORY}/*.h")
 
 # File groups.
 make_pretty_source_folders("include" "include" "${NU_INCLUDE_FILES}")

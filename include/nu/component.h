@@ -110,6 +110,11 @@ public:
 
   inline void add(component& c) { add(&c); }
 
+  inline void add(component* c, const nu::rect& bounds) {
+    add(c);
+    c->set_bounds(bounds);
+  }
+
   inline void add(component& c, const nu::rect& bounds) {
     add(&c);
     c.set_bounds(bounds);

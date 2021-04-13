@@ -32,8 +32,9 @@
 ///
 
 #pragma once
-#include "fst/ui/point.h"
-#include "fst/ui/size.h"
+#include "nu/point.h"
+#include "nu/size.h"
+#include "fst/util.h"
 
 namespace nu {
 namespace detail {

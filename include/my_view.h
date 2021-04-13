@@ -1,7 +1,18 @@
 #pragma once
 
 #include "nu/component.h"
+#include "nu/window.h"
 
+class red_component : public nu::component {
+public:
+
+  virtual void paint(nu::context& g) override {
+    nu::path p;
+    p.add_rect(get_local_bounds());
+    g.set_color(0xFF0000FF);
+    g.fill_path(p);
+  }
+};
 
 class my_view_content_0 : public nu::component {
 public:
@@ -64,6 +75,17 @@ public:
     fst::print("MY_VIEW -- MOUSE LEAVE EVENT");
   }
   
+  virtual void mouse_down(const nu::mouse_event& evt) override {
+    fst::print("MY_VIEW MOUSE DOWN", evt.get_position());
+//    nu::window* w = new nu::window(nu::size(200, 200), "Banana");
+//    nu::component& root = w->get_root();
+//    
+//    root.add(new red_component(), {0, 0, 200, 200});
+//
+//    _window.reset(w);
+//    _window->show();
+  }
+  
   virtual void paint(nu::context& g) override;
   
 private:
@@ -72,4 +94,5 @@ private:
   my_view_content_1 _c1;
   
   nu::image _img;
+//  std::unique_ptr<nu::window> _window;
 };

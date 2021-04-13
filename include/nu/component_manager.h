@@ -44,10 +44,13 @@
 #include <vector>
 
 namespace nu {
+class view;
 class component;
 
 class component_manager {
 public:
+  void set_view(nu::view* v);
+
   void release(nu::component* c);
 
   void set_selected_component(nu::component* c, const nu::mouse_event& evt);
@@ -60,6 +63,7 @@ public:
 
 private:
   nu::component _root;
+  nu::view* _view = nullptr;
   nu::component* _selected_component = nullptr;
 };
 

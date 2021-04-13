@@ -12,7 +12,7 @@
 - (id)initWithRect:(NSRect)contentSize {
   if ( self = [super init] ) {
     _ns_window = [[NSWindow alloc] initWithContentRect:contentSize
-			styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable backing:NSBackingStoreBuffered defer:YES];
+			styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:YES];
 
 		[_ns_window setTitle:@"test string"];
   
@@ -44,15 +44,15 @@ NSLog(@"The code runs through here!");
 //	[_ns_window orderFrontRegardless];
  
  
- NSWindow* w = [[NSWindow alloc] initWithContentRect:CGRectMake(0, 0, 200, 200)
-			styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable backing:NSBackingStoreBuffered defer:YES];
-
-		[w setTitle:@"test dsdsad"];
-  
-    View* view = [[View alloc] initWithFrame:CGRectMake(0, 0, 200, 200)];
-    [w setContentView:view];
-//    [w center];
-    [w orderFrontRegardless];
+// NSWindow* w = [[NSWindow alloc] initWithContentRect:CGRectMake(0, 0, 200, 200)
+//			styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable backing:NSBackingStoreBuffered defer:YES];
+//
+//		[w setTitle:@"test dsdsad"];
+//  
+//    View* view = [[View alloc] initWithFrame:CGRectMake(0, 0, 200, 200)];
+//    [w setContentView:view];
+////    [w center];
+//    [w orderFrontRegardless];
 }
 
 

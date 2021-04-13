@@ -1,7 +1,10 @@
 #include "nu/component_manager.h"
 #include "nu/component.h"
+#include "nu/view.h"
 
 namespace nu {
+void component_manager::set_view(nu::view* v) { _view = v; }
+
 void component_manager::release(nu::component* c) {
   if (_selected_component == c) {
     _selected_component = nullptr;
@@ -103,7 +106,13 @@ namespace detail {
     }
 
     if (_component->_needs_repaint) {
-      _component->_needs_repaint = false;
+      ///
+      /// TODO: Change this back to false.
+      ///
+      _component->_needs_repaint = true;
+      ///
+      ///
+      ///
       _component->paint(g);
     }
 

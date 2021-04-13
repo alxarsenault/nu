@@ -7,7 +7,7 @@
 #include "my_view.h"
 
 @interface View : NSView {
-  nu::component_manager _manager;
+  @public nu::component_manager _manager;
   nu::component _root;
   std::shared_ptr<my_view> _my_view;
 }
