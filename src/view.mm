@@ -134,24 +134,19 @@
 // Mouse events.
 //-----------------------------------------------------------------------------
 - (void)mouseMoved:(NSEvent *)evt {
+  NSPoint locationInView = [self convertPoint:[evt locationInWindow] fromView:nil];
 
-//  NSPoint locationInView = [self convertPoint:[evt locationInWindow] fromView:nil];
-//
-//  const nu::fpoint pos(locationInView.x, locationInView.y);
-//
+  const nu::fpoint pos(locationInView.x, locationInView.y);
+  nu::found_component_info c_info = _manager->find_under_position(pos);
+
 //  using internal = nu::detail::component_internal_ops;
-//
-////  nu::component& root = _manager.get_root();
-//  internal::found_component_info c_info = internal(_manager.get_root()).find_under_position(pos);
-//
-//  if(c_info) {
-//    _manager.set_selected_component(c_info.component, nu::mouse_event(c_info.relative_position));
-//  }
-//  else {
-//    _manager.set_selected_component(nullptr, nu::mouse_event{nu::fpoint{0, 0}});
-//  }
-//
-////    fst::print("mouse moved", pos);
+
+  if(c_info) {
+    _manager->set_selected_component(c_info.component, nu::mouse_event(c_info.relative_position));
+  }
+  else {
+    _manager->set_selected_component(nullptr, nu::mouse_event{nu::fpoint{0, 0}});
+  }
 }
 
 - (void)mouseDown:(NSEvent *)event {
@@ -175,10 +170,29 @@
 
 - (void)mouseUp:(NSEvent *)event {
   NSPoint locationInView = [self convertPoint:[event locationInWindow] fromView:nil];
-
   const nu::fpoint pos(locationInView.x, locationInView.y);
-  nu::found_component_info c_info = _manager->find_under_position(pos);
 
+  nu::component* s_component = _manager->get_selected_component();
+
+  if(s_component) {
+    // Call mouse up on selected component.
+    nu::fpoint abs_pos = s_component->get_absolute_position();
+    using internal = nu::detail::component_internal_ops;
+    internal(s_component).handle_mouse_up(nu::mouse_event(pos - abs_pos));
+
+    // Assign new selected component.
+    nu::found_component_info c_info = _manager->find_under_position(pos);
+    if(c_info) {
+      _manager->set_selected_component(c_info.component, nu::mouse_event(c_info.relative_position));
+    }
+    else {
+      _manager->set_selected_component(nullptr, nu::mouse_event{nu::fpoint{0, 0}});
+    }
+    return;
+  }
+
+  // If no component is selected.
+  nu::found_component_info c_info = _manager->find_under_position(pos);
   if(c_info) {
     using internal = nu::detail::component_internal_ops;
     internal(c_info.component).handle_mouse_up(nu::mouse_event(c_info.relative_position));
@@ -191,7 +205,20 @@
 
 
 
-- (void)mouseDragged:(NSEvent *)theEvent {
+- (void)mouseDragged:(NSEvent *)evt {
+
+  nu::component* s_component = _manager->get_selected_component();
+  if(s_component == nullptr) {
+    return;
+  }
+
+  NSPoint locationInView = [self convertPoint:[evt locationInWindow] fromView:nil];
+  const nu::fpoint pos(locationInView.x, locationInView.y);
+  
+  nu::fpoint abs_pos = s_component->get_absolute_position();
+  
+  using internal = nu::detail::component_internal_ops;
+  internal(s_component).handle_mouse_drag(nu::mouse_event(pos - abs_pos));
 }
 
 // Mouse scroll wheel movement.

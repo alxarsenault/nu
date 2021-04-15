@@ -36,6 +36,7 @@
 #include "fst/util.h"
 
 #include "nu/context.h"
+#include "nu/geometry.h"
 #include "nu/mouse_event.h"
 
 #include <limits>
@@ -94,6 +95,7 @@ public:
     mouse_enter,
     mouse_leave,
 
+    update,
     paint,
     count
   };
@@ -155,7 +157,7 @@ public:
   inline component* get_root_parent() {
     component* p = _parent;
 
-    while (p->get_parent()) {
+    while (p && p->get_parent()) {
       p = p->get_parent();
     }
 
@@ -165,7 +167,7 @@ public:
   inline const component* get_root_parent() const {
     const component* p = _parent;
 
-    while (p->get_parent()) {
+    while (p && p->get_parent()) {
       p = p->get_parent();
     }
 
@@ -181,6 +183,9 @@ public:
   inline void set_size(const nu::size& s) {
     if (fst::assign(_bounds.size, s) && _override_info[override_info::bounds_changed]) {
       bounds_changed(bounds_status::size);
+      if (_update_on_resize) {
+        _needs_update = true;
+      }
     }
   }
 
@@ -195,12 +200,18 @@ public:
 
     if (p_changed && s_changed) {
       bounds_changed(bounds_status::bounds);
+      if (_update_on_resize) {
+        _needs_update = true;
+      }
     }
     else if (p_changed) {
       bounds_changed(bounds_status::position);
     }
     else if (s_changed) {
       bounds_changed(bounds_status::size);
+      if (_update_on_resize) {
+        _needs_update = true;
+      }
     }
   }
 
@@ -212,9 +223,27 @@ public:
 
   inline nu::rect get_local_bounds() const { return nu::rect({ 0, 0 }, _bounds.size); }
 
+  inline nu::point get_absolute_position() const {
+    nu::point abs_pos = _bounds.position;
+    const component* p = _parent;
+
+    while (p) {
+      abs_pos += p->get_position();
+      p = p->get_parent();
+    }
+
+    return abs_pos;
+  }
+
+  inline nu::rect get_absolute_bounds() const { return nu::rect(get_absolute_position(), _bounds.size); }
+
   inline void set_clipping(bool clipping) { _is_clipped = clipping; }
 
   inline bool is_clipped() const { return _is_clipped; }
+
+  inline void set_update_on_resize(bool value) { _update_on_resize = value; }
+
+  inline bool get_update_on_resize() const { return _update_on_resize; }
 
   virtual void parent_changed() {}
   virtual void children_changed() {}
@@ -232,6 +261,7 @@ public:
   virtual void mouse_enter(const nu::mouse_event& evt) {}
   virtual void mouse_leave() {}
 
+  virtual void update(nu::geometry::vector& geometries) {}
   virtual void paint(nu::context& gc) {}
 
 public:
@@ -248,6 +278,7 @@ public:
     constexpr bool has_mouse_wheel = HAS_OVERRIDE(mouse_wheel);
     constexpr bool has_mouse_enter = HAS_OVERRIDE(mouse_enter);
     constexpr bool has_mouse_leave = HAS_OVERRIDE(mouse_leave);
+    constexpr bool has_update = HAS_OVERRIDE(update);
     constexpr bool has_paint = HAS_OVERRIDE(paint);
 #undef HAS_OVERRIDE
 
@@ -264,7 +295,8 @@ public:
     _override_info.set(override_info::mouse_enter, has_mouse_enter);
     _override_info.set(override_info::mouse_leave, has_mouse_leave);
 
-    // Paint.
+    //
+    _override_info.set(override_info::update, has_update);
     _override_info.set(override_info::paint, has_paint);
   }
 
@@ -278,14 +310,15 @@ private:
   friend class detail::component_internal_ops;
 
   std::vector<component*> _children;
+  nu::geometry::vector _geometries;
   fst::enum_bitset<override_info> _override_info;
-  nu::rect _dirty_bounds;
   component* _parent = nullptr;
   component_manager* _manager = nullptr;
   nu::rect _bounds;
   id_type _id;
   bool _is_clipped = true;
-  bool _needs_repaint = true;
+  bool _needs_update = true;
+  bool _update_on_resize = true;
 
   inline static id_type generate_id() {
     static id_type __id = (id_type)0;

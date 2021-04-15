@@ -106,6 +106,7 @@ public:
   }
 
   inline std::size_t size() const { return _geometries.size(); }
+  inline bool is_empty() const { return _geometries.empty(); }
 
   inline void clear() { _geometries.clear(); }
   inline void reset() { _geometries = vector_type(); }
@@ -162,6 +163,9 @@ private:
   memory_pool _pool;
 };
 
+//
+// Filled rectangle.
+//
 class filled_rectangle : public base {
 public:
   virtual ~filled_rectangle();
@@ -186,6 +190,9 @@ private:
   static void* operator new(size_t) = delete;
 };
 
+//
+// Stroked rectangle.
+//
 class stroked_rectangle : public base {
 public:
   virtual ~stroked_rectangle();
@@ -210,6 +217,9 @@ private:
   static void* operator new(size_t) = delete;
 };
 
+//
+// Filled and stroked rectangle.
+//
 class filled_and_stroked_rectangle : public base {
 public:
   virtual ~filled_and_stroked_rectangle();
@@ -237,6 +247,9 @@ private:
   static void* operator new(size_t) = delete;
 };
 
+//
+// Image.
+//
 class image : public base {
 public:
   virtual ~image();
@@ -254,6 +267,9 @@ private:
   static void* operator new(size_t) = delete;
 };
 
+//
+// Image in rect.
+//
 class image_in_rect : public base {
 public:
   virtual ~image_in_rect();
@@ -274,6 +290,9 @@ private:
   static void* operator new(size_t) = delete;
 };
 
+//
+// Stroked path.
+//
 class stroked_path : public base {
 public:
   virtual ~stroked_path();
@@ -300,6 +319,9 @@ private:
   static void* operator new(size_t) = delete;
 };
 
+//
+// Filled path.
+//
 class filled_path : public base {
 public:
   virtual ~filled_path();
@@ -323,6 +345,9 @@ private:
   static void* operator new(size_t) = delete;
 };
 
+//
+// Filled and stroked path.
+//
 class filled_and_stroked_path : public base {
 public:
   virtual ~filled_and_stroked_path();

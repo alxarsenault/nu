@@ -147,16 +147,18 @@ namespace detail {
       g.clip_to_rect(_component->get_local_bounds());
     }
 
-    if (_component->_needs_repaint) {
-      ///
-      /// TODO: Change this back to false.
-      ///
-      _component->_needs_repaint = true;
-      ///
-      ///
-      ///
+    if (_component->_needs_update) {
+      _component->_needs_update = false;
+      if (_component->_override_info[nu::component::override_info::update]) {
+        _component->update(_component->_geometries);
+      }
+    }
+
+    if (_component->_override_info[nu::component::override_info::paint]) {
       _component->paint(g);
     }
+
+    _component->_geometries.draw(g);
 
     for (auto& c : _component->_children) {
       component_internal_ops(c).handle_paint(g);

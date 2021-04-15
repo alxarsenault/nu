@@ -65,6 +65,9 @@ public:
   void release(nu::component* c);
 
   void set_selected_component(nu::component* c, const nu::mouse_event& evt);
+  inline nu::component* get_selected_component() { return _selected_component; }
+
+  inline const nu::component* get_selected_component() const { return _selected_component; }
 
   found_component_info find_under_position(const nu::fpoint& p);
 

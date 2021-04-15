@@ -62,25 +62,20 @@ void component::remove(const component* c, bool notify_parent_changed) {
 }
 
 void component::repaint() {
-  _needs_repaint = true;
-  //  _dirty_bounds = get_local_bounds();
+  _needs_update = true;
+
   if (_manager) {
-    fst::print("JJJJ");
-    //      _manager->set_dirty_rect(_dirty_bounds);
-    _manager->set_dirty_rect({ 0, 0, 50, 50 });
-    //    _manager->set_dirty_rect({200, 0, 20, 20});
-    //    _manager->set_dirty_rect({50, 50, 10, 10});
+    _manager->set_dirty_rect(get_absolute_bounds());
   }
 }
 
 void component::repaint(const nu::rect& r) {
-  _needs_repaint = true;
-  //  _dirty_bounds = r;
-  //  _dirty_bounds.clip_to(get_local_bounds());
+  _needs_update = true;
 
   if (_manager) {
-    //    _manager->set_dirty_rect(_dirty_bounds);
-    //    _manager->set_dirty_rect({0, 0, 500, 500});
+    nu::rect bounds = r;
+    bounds.position = get_absolute_position();
+    _manager->set_dirty_rect(bounds);
   }
 }
 } // namespace nu.
