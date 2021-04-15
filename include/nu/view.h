@@ -18,13 +18,18 @@ public:
 
   ~view();
 
-  const nu::rect& get_bounds() const { return get_root().get_bounds(); }
+  //  const nu::rect& get_bounds() const { return get_root().get_bounds(); }
 
-  inline nu::component& get_root() { return _manager.get_root(); }
-  inline const nu::component& get_root() const { return _manager.get_root(); }
+  inline nu::component* get_root() { return _root.is_valid() ? _root.get() : nullptr; }
+  inline const nu::component* get_root() const { return _root.is_valid() ? _root.get() : nullptr; }
+
+  //  inline nu::component& get_root() { return _manager.get_root(); }
+  //  inline const nu::component& get_root() const { return _manager.get_root(); }
 
   native_view get_native_view();
   const native_view get_native_view() const;
+
+  void set_dirty_rect(const nu::frect& rect);
 
 private:
   fst::optional_owned_ptr<nu::component> _root;

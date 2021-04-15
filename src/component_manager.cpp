@@ -3,12 +3,30 @@
 #include "nu/view.h"
 
 namespace nu {
-void component_manager::set_view(nu::view* v) { _view = v; }
+void component_manager::set_view(nu::view* v) {
+  _view = v;
+  assign_manager();
+}
+
+void component_manager::assign_manager() {
+  if (nu::component* root = get_root()) {
+    detail::component_internal_ops(root).set_manager(this);
+  }
+}
+
+void component_manager::assign_manager(nu::component* c) { detail::component_internal_ops(c).set_manager(this); }
 
 void component_manager::release(nu::component* c) {
+  if (c == nullptr) {
+    fst_assert(false, "This should never happen.");
+    return;
+  }
+
   if (_selected_component == c) {
     _selected_component = nullptr;
   }
+
+  detail::component_internal_ops(c).set_manager(nullptr);
 }
 
 void component_manager::set_selected_component(nu::component* c, const nu::mouse_event& evt) {
@@ -29,9 +47,30 @@ void component_manager::set_selected_component(nu::component* c, const nu::mouse
   detail::component_internal_ops(_selected_component).handle_mouse_enter(evt);
 }
 
-void component_manager::handle_paint(nu::context& g) { detail::component_internal_ops(_root).handle_paint(g); }
+found_component_info component_manager::find_under_position(const nu::fpoint& p) {
+  if (nu::component* root = get_root()) {
+    return detail::component_internal_ops(root).find_under_position(p);
+  }
+
+  return { nullptr, { 0, 0 } };
+}
+
+nu::component* component_manager::get_root() { return _view == nullptr ? nullptr : _view->get_root(); }
+const nu::component* component_manager::get_root() const { return _view == nullptr ? nullptr : _view->get_root(); }
+
+void component_manager::set_dirty_rect(const nu::frect& rect) {
+  fst::print("component_manager::set_dirty_rect");
+  _view->set_dirty_rect(rect);
+}
+
+void component_manager::handle_paint(nu::context& g) {
+  if (nu::component* root = get_root()) {
+    detail::component_internal_ops(root).handle_paint(g);
+  }
+}
 
 namespace detail {
+
   //---------------------------------------------------------
   component_internal_ops::component_internal_ops(component& c)
       : _component(&c) {}
@@ -39,9 +78,12 @@ namespace detail {
   component_internal_ops::component_internal_ops(component* c)
       : _component(c) {}
 
-  void component_internal_ops::set_manager(component_manager* manager) { _component->_manager = manager; }
+  void component_internal_ops::set_manager(component_manager* manager) {
 
-  component_internal_ops::found_component_info component_internal_ops::find_under_position(const nu::fpoint& p) {
+    component_internal_ops(_component).iterate([manager](nu::component& c) { c._manager = manager; });
+  }
+
+  found_component_info component_internal_ops::find_under_position(const nu::fpoint& p) {
     if (!_component->get_bounds().contains(p)) {
       return { nullptr, nu::fpoint(0, 0) };
     }

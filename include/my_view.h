@@ -2,16 +2,49 @@
 
 #include "nu/component.h"
 #include "nu/window.h"
+#include "nu/geometry.h"
 
 class red_component : public nu::component {
 public:
+  red_component() {
+    _color = 0xFF0000FF;
+  }
+
+  virtual void mouse_down(const nu::mouse_event& evt) override {
+    fst::print("red_component - mouse_down", evt.get_position());
+    _color = 0x00FF00FF;
+    repaint();
+  }
+  
+  virtual void mouse_up(const nu::mouse_event& evt) override {
+    fst::print("red_component - mouse_up", evt.get_position());
+    _color = 0xFF0000FF;
+    repaint();
+  }
+  
+  void update() {
+    
+    auto& g = _geometries;
+    g.clear();
+    g.add_rect(nu::frect(5.0f, 5.0f, 10.0f, 10.0f), 0x0000FFFF);
+    g.add_rect_contour(nu::frect(5.0f, 5.0f, 10.0f, 10.0f), 0xFFFFFFFF, 1.0f);
+    g.add_rect_and_contour(nu::frect(25.0f, 5.0f, 10.0f, 10.0f), 0x00FF00FF, 0x000000FF, 1.0f);
+  }
 
   virtual void paint(nu::context& g) override {
     nu::path p;
     p.add_rect(get_local_bounds());
-    g.set_color(0xFF0000FF);
+    g.set_color(_color);
     g.fill_path(p);
+    
+    update();
+    _geometries.draw(g);
+//    _geometries.draw(g, {0, 0, 10, 10});
   }
+  
+  private:
+  nu::color _color;
+  nu::geometry::vector _geometries;
 };
 
 class my_view_content_0 : public nu::component {
@@ -95,4 +128,36 @@ private:
   
   nu::image _img;
 //  std::unique_ptr<nu::window> _window;
+};
+
+
+class main_component : public nu::component {
+public:
+  main_component() {
+    set_size({500, 500});
+    
+    add(_r0, {10, 10, 50, 50});
+  }
+  
+  main_component(nu::color c)
+  : _color(c) {
+    set_size({500, 500});
+    
+    add(_r0, {10, 10, 50, 50});
+  }
+
+  virtual void mouse_down(const nu::mouse_event& evt) override {
+    fst::print("main_component - mouse_down", evt.get_position());
+  }
+  
+  virtual void paint(nu::context& g) override {
+    nu::path p;
+    p.add_rect(get_local_bounds());
+    g.set_color(_color);
+    g.fill_path(p);
+  }
+  
+private:
+  red_component _r0;
+  nu::color _color = 0x00FFFFFF;
 };

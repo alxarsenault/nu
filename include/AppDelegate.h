@@ -8,12 +8,16 @@
 #pragma once
 #import <Cocoa/Cocoa.h>
 #include "view.h"
+#include "nu/view.h"
 
 //class View;
 
 @interface AppDelegate : NSObject <NSApplicationDelegate> {
   NSWindow* _ns_window;
-  View* _view;
+//  View* _view;
+  
+
+  std::unique_ptr<nu::view> _view;
   
   
 }

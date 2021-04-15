@@ -116,7 +116,8 @@ namespace detail {
     inline constexpr value_type bottom() const { return position.y + size.height; }
 
     inline constexpr bool intersect(const rect& r) const {
-      return left() > r.right() || r.left() > right() || top() < r.bottom() || r.top() < bottom();
+      return (fst::is_in_range(x, r.x, r.right()) || fst::is_in_range(r.x, x, right()))
+          && (fst::is_in_range(y, r.y, r.bottom()) || fst::is_in_range(r.y, y, bottom()));
     }
 
     template <typename _PointValueType>

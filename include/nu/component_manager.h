@@ -47,22 +47,35 @@ namespace nu {
 class view;
 class component;
 
+struct found_component_info {
+  nu::component* component;
+  nu::fpoint relative_position;
+
+  inline explicit operator bool() const { return component != nullptr; }
+};
+
 class component_manager {
 public:
   void set_view(nu::view* v);
+
+  void assign_manager();
+
+  void assign_manager(nu::component* c);
 
   void release(nu::component* c);
 
   void set_selected_component(nu::component* c, const nu::mouse_event& evt);
 
-  inline nu::component& get_root() { return _root; }
+  found_component_info find_under_position(const nu::fpoint& p);
 
-  inline const nu::component& get_root() const { return _root; }
+  nu::component* get_root();
+  const nu::component* get_root() const;
+
+  void set_dirty_rect(const nu::frect& rect);
 
   void handle_paint(nu::context& g);
 
 private:
-  nu::component _root;
   nu::view* _view = nullptr;
   nu::component* _selected_component = nullptr;
 };
@@ -75,12 +88,21 @@ namespace detail {
 
     void set_manager(component_manager* manager);
 
-    struct found_component_info {
-      nu::component* component;
-      nu::fpoint relative_position;
+    template <typename Fct>
+    inline void iterate(Fct fct) {
+      fct(*_component);
 
-      inline explicit operator bool() const { return component != nullptr; }
-    };
+      for (nu::component* c : _component->_children) {
+        component_internal_ops(c).iterate(fct);
+      }
+    }
+
+    //    struct found_component_info {
+    //      nu::component* component;
+    //      nu::fpoint relative_position;
+    //
+    //      inline explicit operator bool() const { return component != nullptr; }
+    //    };
 
     found_component_info find_under_position(const nu::fpoint& p);
 

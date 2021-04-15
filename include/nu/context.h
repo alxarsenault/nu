@@ -66,8 +66,11 @@ public:
    void clip_to_rect(const nu::frect& rect);
    nu::frect get_clipping_rect();
 
+   void set_line_width(value_type width);
    void set_color(const nu::color& c);
+   void set_stroke_color(const nu::color& c);
    void fill_path(const nu::path& p);
+   void draw_path(const nu::path& p);
    void draw_image(const nu::image& img, const nu::frect& rect);
    void banana(const nu::path& p, const nu::fpoint& pos);
   

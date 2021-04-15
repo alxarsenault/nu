@@ -14,6 +14,8 @@
 - (void)viewDidMoveToWindow;
 - (BOOL)isFlipped;
 
+- (BOOL)isOpaque;
+- (BOOL)wantsDefaultClipping;
 
 - (void)mouseMoved:(NSEvent*)evt;
 - (void)mouseDragged:(NSEvent*)evt;
@@ -22,6 +24,10 @@
 - (void)mouseDown:(NSEvent*)evt;
 - (void)scrollWheel:(NSEvent*)evt;
 
+- (void)display;
+- (void)displayIfNeeded;
+- (void)displayRect:(NSRect)rect;
+- (void)displayIfNeededInRect:(NSRect)rect;
 - (void)drawRect:(NSRect)rect;
 
 - (void) OnWindowResize;
@@ -36,6 +42,9 @@
 //  std::cout << "FDLFJDKLFJD " << std::endl;
   if (self) {
     _manager = manager;
+    fst::print("FDLKJFDKLJFKLDJFD", _manager->get_root() == nullptr);
+    
+//    [self setOpaque:TRUE];
 //    nu::component& root = _manager.get_root();
 //    root.set_bounds(nu::rect(0, 0, frame.size.width, frame.size.height));
 //    nu::detail::component_internal_ops(root).set_manager(&_manager);
@@ -62,6 +71,7 @@
   [[self window] makeFirstResponder:self];
   [[self window] setAcceptsMouseMovedEvents:YES];
 
+//  [self setWantsLayer:YES];
   //  _view_manager.get_root().emplace_delegate<root_delegate>();
   //  NSRect rect = [self bounds];
   //  _view_manager.get_root().set_position(0, 0);
@@ -97,6 +107,15 @@
 - (BOOL)isFlipped {
   return YES;
 }
+
+- (BOOL)isOpaque {
+  return YES;
+}
+
+- (BOOL)wantsDefaultClipping {
+  return NO;
+}
+
 // CGAffineTransform
 
 // struct CGAffineTransform {
@@ -136,47 +155,41 @@
 }
 
 - (void)mouseDown:(NSEvent *)event {
-//  	NSPoint locationInView = [self convertPoint:[event locationInWindow]
-//  fromView:nil];
-//
-//  const nu::fpoint pos(locationInView.x, locationInView.y);
-//
-//  using internal = nu::detail::component_internal_ops;
-//
-//  internal::found_component_info c_info = internal(_manager.get_root()).find_under_position(pos);
-//
-//  if(c_info) {
-//    fst::print("FOUNDC OMPONENT", (std::size_t)c_info.component->get_id(), c_info.relative_position);
-//    internal(c_info.component).handle_mouse_down(nu::mouse_event(c_info.relative_position));
+  NSPoint locationInView = [self convertPoint:[event locationInWindow] fromView:nil];
+
+  const nu::fpoint pos(locationInView.x, locationInView.y);
+  nu::found_component_info c_info = _manager->find_under_position(pos);
+
+  if(c_info) {
+    using internal = nu::detail::component_internal_ops;
+    internal(c_info.component).handle_mouse_down(nu::mouse_event(c_info.relative_position));
+  }
+
+//  // Double click.
+//  if (event.clickCount == 2) {
 //  }
-////  get_component_at_position();
-//  //
-//  //	// Double click.
-//  //	if (event.clickCount == 2) {
-//  //		_core->GetPopupManager()->OnMouseLeftDoubleClick(pos);
-//  //		if (_core->GetPopupManager()->IsEventReachWindow() == false) {
-//  //			_core->GetWindowManager()->OnMouseLeftDoubleClick(pos);
-//  //		}
-//  //	}
-//  //
-//  //	// Simple click.
-//  //	else {
-//  //		_core->GetPopupManager()->OnMouseLeftDown(pos);
-//  //
-//  //		if (_core->GetPopupManager()->IsEventReachWindow() == false) {
-//  //			_core->GetWindowManager()->OnMouseLeftDown(pos);
-//  //		}
-//  //	}
+//  else {
+//
+//  }
+}
+
+- (void)mouseUp:(NSEvent *)event {
+  NSPoint locationInView = [self convertPoint:[event locationInWindow] fromView:nil];
+
+  const nu::fpoint pos(locationInView.x, locationInView.y);
+  nu::found_component_info c_info = _manager->find_under_position(pos);
+
+  if(c_info) {
+    using internal = nu::detail::component_internal_ops;
+    internal(c_info.component).handle_mouse_up(nu::mouse_event(c_info.relative_position));
+  }
 }
 
 - (void)rightMouseDown:(NSEvent *)event {
   
 }
 
-// Working.
-- (void)mouseUp:(NSEvent *)anEvent {
 
-}
 
 - (void)mouseDragged:(NSEvent *)theEvent {
 }
@@ -186,11 +199,43 @@
 
 }
 
+- (void)display {
+  fst::print("display");
+}
+
+- (void)displayIfNeeded {
+  fst::print("displayIfNeeded");
+}
+
+- (void)displayIfNeededInRect:(NSRect)rect {
+  fst::print("displayIfNeededInRect");
+}
+
+- (void)displayRect:(NSRect)rect {
+  fst::print("displayRect");
+}
+
 - (void)drawRect:(NSRect)rect {
   nu::context g([NSGraphicsContext currentContext].CGContext);
-//  
-//  fst::print("DRAW RECT", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-//  _manager->handle_paint(g);
+//
+  nu::frect c_rect = g.get_clipping_rect();
+  
+  
+  bool nnn = [self needsToDrawRect:NSMakeRect(100, 100, 20, 20)];
+//  bool needs_display = [self needsDisplay];
+  
+  const NSRect *rects;
+  NSInteger count;
+    
+    [self getRectsBeingDrawn:&rects count:&count];
+    
+    nu::frect rr(rects[0].origin.x, rects[0].origin.y, rects[0].size.width, rects[0].size.height);
+    fst::print("RRR", nnn, count, rr, c_rect);
+//  const NSRect ** rects;
+//  NSInteger* count;
+//  [self getRectsBeingDrawn:rects count:count];
+  fst::print("DRAW RECT", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+  _manager->handle_paint(g);
 //
 //  //  [[NSColor colorWithCalibratedRed:1.0f green:0 blue:0 alpha:1.0f] setFill];
 //  //  [NSBezierPath fillRect:NSMakeRect(0, 0, rect.size.width,
@@ -208,8 +253,14 @@ public:
   {
     CGRect content_size = CGRectMake(bounds.x, bounds.y, bounds.width, bounds.height);
     _view = [[CocoaView alloc] initWithFrameAndManager:manager frame:content_size];
+    
   }
-  
+
+  void set_dirty_rect(const nu::frect& rect) {
+    [_view setNeedsDisplay:TRUE];
+//    [_view setNeedsDisplayInRect:CGRectMake(rect.x, rect.y, rect.width, rect.height)];
+  }
+
   CocoaView* get_view() {
     return _view;
   }
@@ -224,25 +275,30 @@ private:
 };
 
 view::view(const nu::rect& bounds) {
-  _manager.get_root().set_bounds(bounds);
+//  _manager.get_root().set_bounds(bounds);
+  _manager.set_view(this);
   _pimpl = new pimpl(&_manager, bounds);
 }
 
 view::view(fst::optional_owned_ptr<nu::component>&& root)
 : _root(std::move(root))
 {
+  _manager.set_view(this);
   _pimpl = new pimpl(&_manager, _root->get_bounds());
+  
 }
 
 view::view(nu::component* root, bool owned)
 : _root(root, owned)
 {
+  _manager.set_view(this);
   _pimpl = new pimpl(&_manager, _root->get_bounds());
 }
 
 view::view(nu::component& root)
 : _root(&root, false)
 {
+  _manager.set_view(this);
   _pimpl = new pimpl(&_manager, _root->get_bounds());
 }
 
@@ -258,5 +314,9 @@ native_view view::get_native_view() {
 
 const native_view view::get_native_view() const {
   return _pimpl->get_view();
+}
+
+void view::set_dirty_rect(const nu::frect& rect) {
+  _pimpl->set_dirty_rect(rect);
 }
 } // namespace nu.

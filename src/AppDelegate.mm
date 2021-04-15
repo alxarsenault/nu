@@ -6,6 +6,7 @@
 //
 
 #import "AppDelegate.h"
+#include "my_view.h"
 
 @implementation AppDelegate
 
@@ -16,7 +17,23 @@
 
 		[_ns_window setTitle:@"test string"];
   
-    _view = [[View alloc] initWithFrame:contentSize];
+    main_component* m_view = new main_component();
+    m_view->set_bounds(nu::rect(0, 0, contentSize.size.width, contentSize.size.height));
+    _view = std::make_unique<nu::view>(m_view, true);
+
+    
+//    
+//    main_component* m_view2 = new main_component(0x00FF00FF);
+//    m_view2->set_bounds(nu::rect(70, 70, 100, 100));
+//    nu::view* view2 = new nu::view(m_view2, true);
+//    [(NSView*)_view->get_native_view() addSubview:(NSView*)view2->get_native_view()];
+//
+////    [(NSView*)view2->get_native_view() setFrameOrigin:CGPointMake(70, 70)];
+//    [(NSView*)view2->get_native_view() setBoundsOrigin:CGPointMake(70, 70)];
+  
+//    _view = std::make_unique<nu::view>(nu::rect(0, 0, contentSize.size.width, contentSize.size.height));
+  
+//    _view = [[View alloc] initWithFrame:contentSize];
   }
   
   return self;
@@ -32,7 +49,7 @@
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
 //	std::cout << "applicationWillFinishLaunching\n";
 	// Attach the view to the window
-	[_ns_window setContentView:_view];
+	[_ns_window setContentView:(NSView*)_view->get_native_view()];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {

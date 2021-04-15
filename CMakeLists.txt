@@ -188,6 +188,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR} ${CMAKE_MODULE_PATH})
 set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR} ${CMAKE_PREFIX_PATH})
 
 find_package(TBB CONFIG REQUIRED)
+# find_package(TBB COMPONENTS tbbmalloc_proxy)
 
 include(FetchContent)
 
@@ -252,6 +253,8 @@ nu_set_compile_options(${PROJECT_NAME} PRIVATE)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
   fst
+  TBB::TBB
+  # tbbmalloc_proxy
   "-framework CoreFoundation"
   "-framework Cocoa"
 )

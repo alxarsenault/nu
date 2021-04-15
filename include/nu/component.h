@@ -270,16 +270,9 @@ public:
 
   inline bool get_override_info(override_info o_info) const { return _override_info[o_info]; }
 
-  inline void repaint() {
-    _needs_repaint = true;
-    _bounds = get_local_bounds();
-  }
+  void repaint();
 
-  inline void repaint(const nu::rect& r) {
-    _needs_repaint = true;
-    _bounds = r;
-    _bounds.clip_to(get_local_bounds());
-  }
+  void repaint(const nu::rect& r);
 
 private:
   friend class detail::component_internal_ops;

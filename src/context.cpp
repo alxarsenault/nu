@@ -47,14 +47,26 @@ nu::frect context::get_clipping_rect() {
   return nu::frect(r.origin.x, r.origin.y, r.size.width, r.size.width);
 }
 
+void context::set_line_width(value_type width) { CGContextSetLineWidth(_context, width); }
+
 void context::set_color(const nu::color& c) {
   CGContextSetRGBFillColor(_context, c.f_red(), c.f_green(), c.f_blue(), c.f_alpha());
+  CGContextSetAlpha(_context, 1);
+}
+
+void context::set_stroke_color(const nu::color& c) {
+  CGContextSetRGBStrokeColor(_context, c.f_red(), c.f_green(), c.f_blue(), c.f_alpha());
   CGContextSetAlpha(_context, 1);
 }
 
 void context::fill_path(const nu::path& p) {
   CGContextAddPath(_context, p.get_native_path());
   CGContextFillPath(_context);
+}
+
+void context::draw_path(const nu::path& p) {
+  CGContextAddPath(_context, p.get_native_path());
+  CGContextStrokePath(_context);
 }
 
 void context::draw_image(const nu::image& img, const nu::frect& rect) {
