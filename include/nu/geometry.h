@@ -56,21 +56,47 @@ public:
   virtual void destroy(memory_pool& pool) = 0;
 };
 
-class rectangle;
-class rectangle_contour;
-class rectangle_and_contour;
+class filled_rectangle;
+class stroked_rectangle;
+class filled_and_stroked_rectangle;
+class image;
+class image_in_rect;
+class stroked_path;
+class filled_path;
+class filled_and_stroked_path;
 
 class vector {
 public:
-  inline rectangle* add_rect(const nu::frect& rect, const nu::color& color) { return add<rectangle>(rect, color); }
-
-  inline rectangle_contour* add_rect_contour(const nu::frect& rect, const nu::color& color, float line_width = 1) {
-    return add<rectangle_contour>(rect, color, line_width);
+  inline filled_rectangle* add_filled_rectangle(const nu::frect& rect, const nu::color& color) {
+    return add<filled_rectangle>(rect, color);
   }
 
-  inline rectangle_and_contour* add_rect_and_contour(
+  inline stroked_rectangle* add_stroked_rectangle(const nu::frect& rect, const nu::color& color, float line_width = 1) {
+    return add<stroked_rectangle>(rect, color, line_width);
+  }
+
+  inline filled_and_stroked_rectangle* add_filled_and_stroked_rectangle(
       const nu::frect& rect, const nu::color& fill_color, const nu::color& contour_color, float line_width = 1) {
-    return add<rectangle_and_contour>(rect, fill_color, contour_color, line_width);
+    return add<filled_and_stroked_rectangle>(rect, fill_color, contour_color, line_width);
+  }
+
+  inline image* add_image(fst::not_null<nu::image*> img, const nu::fpoint& pos) { return add<image>(img, pos); }
+
+  inline image_in_rect* add_image_in_rect(fst::not_null<nu::image*> img, const nu::frect& rect) {
+    return add<image_in_rect>(img, rect);
+  }
+
+  inline stroked_path* add_stroked_path(nu::path&& p, const nu::color& color, float line_width) {
+    return add<stroked_path>(std::move(p), color, line_width);
+  }
+
+  inline filled_path* add_filled_path(nu::path&& p, const nu::color& color) {
+    return add<filled_path>(std::move(p), color);
+  }
+
+  inline filled_and_stroked_path* add_filled_and_stroked_path(
+      nu::path&& p, const nu::color& fill_color, const nu::color& contour_color, float line_width = 1) {
+    return add<filled_and_stroked_path>(std::move(p), fill_color, contour_color, line_width);
   }
 
   template <typename T, typename... Args>
@@ -136,13 +162,14 @@ private:
   memory_pool _pool;
 };
 
-class rectangle : public base {
+class filled_rectangle : public base {
 public:
-  virtual ~rectangle();
+  virtual ~filled_rectangle();
   virtual bool intersect(const nu::frect& rect) const override;
   virtual void draw(nu::context& g) const override;
   virtual void destroy(memory_pool& pool) override;
 
+  void set(const nu::frect& rect, const nu::color& color);
   void set_rect(const nu::frect& rect);
   void set_color(const nu::color& color);
 
@@ -154,14 +181,14 @@ private:
   content* _content;
 
   friend class vector;
-  rectangle(const nu::frect& rect, const nu::color& color);
+  filled_rectangle(const nu::frect& rect, const nu::color& color);
   static void* operator new(size_t size, memory_pool& pool);
   static void* operator new(size_t) = delete;
 };
 
-class rectangle_contour : public base {
+class stroked_rectangle : public base {
 public:
-  virtual ~rectangle_contour();
+  virtual ~stroked_rectangle();
   virtual bool intersect(const nu::frect& rect) const override;
   virtual void draw(nu::context& g) const override;
   virtual void destroy(memory_pool& pool) override;
@@ -178,14 +205,14 @@ private:
   content* _content;
 
   friend class vector;
-  rectangle_contour(const nu::frect& rect, const nu::color& color, float line_width);
+  stroked_rectangle(const nu::frect& rect, const nu::color& color, float line_width);
   static void* operator new(size_t size, memory_pool& pool);
   static void* operator new(size_t) = delete;
 };
 
-class rectangle_and_contour : public base {
+class filled_and_stroked_rectangle : public base {
 public:
-  virtual ~rectangle_and_contour();
+  virtual ~filled_and_stroked_rectangle();
   virtual bool intersect(const nu::frect& rect) const override;
   virtual void draw(nu::context& g) const override;
   virtual void destroy(memory_pool& pool) override;
@@ -204,8 +231,120 @@ private:
   content* _content;
 
   friend class vector;
-  rectangle_and_contour(
+  filled_and_stroked_rectangle(
       const nu::frect& rect, const nu::color& fill_color, const nu::color& contour_color, float line_width);
+  static void* operator new(size_t size, memory_pool& pool);
+  static void* operator new(size_t) = delete;
+};
+
+class image : public base {
+public:
+  virtual ~image();
+  virtual bool intersect(const nu::frect& rect) const override;
+  virtual void draw(nu::context& g) const override;
+  virtual void destroy(memory_pool& pool) override;
+
+private:
+  class content;
+  content* _content;
+
+  friend class vector;
+  image(fst::not_null<nu::image*> img, const nu::fpoint& pos);
+  static void* operator new(size_t size, memory_pool& pool);
+  static void* operator new(size_t) = delete;
+};
+
+class image_in_rect : public base {
+public:
+  virtual ~image_in_rect();
+  virtual bool intersect(const nu::frect& rect) const override;
+  virtual void draw(nu::context& g) const override;
+  virtual void destroy(memory_pool& pool) override;
+
+  void set_rect(const nu::frect& rect);
+  nu::frect get_rect() const;
+
+private:
+  class content;
+  content* _content;
+
+  friend class vector;
+  image_in_rect(fst::not_null<nu::image*> img, const nu::frect& rect);
+  static void* operator new(size_t size, memory_pool& pool);
+  static void* operator new(size_t) = delete;
+};
+
+class stroked_path : public base {
+public:
+  virtual ~stroked_path();
+  virtual bool intersect(const nu::frect& rect) const override;
+  virtual void draw(nu::context& g) const override;
+  virtual void destroy(memory_pool& pool) override;
+
+  void set(nu::path&& p, const nu::color& color, float line_width);
+  void set_path(nu::path&& p);
+  void set_color(const nu::color& color);
+  void set_line_width(float w);
+
+  const nu::path& get_path() const;
+  nu::color get_color() const;
+  float get_line_width() const;
+
+private:
+  class content;
+  content* _content;
+
+  friend class vector;
+  stroked_path(nu::path&& p, const nu::color& color, float line_width);
+  static void* operator new(size_t size, memory_pool& pool);
+  static void* operator new(size_t) = delete;
+};
+
+class filled_path : public base {
+public:
+  virtual ~filled_path();
+  virtual bool intersect(const nu::frect& rect) const override;
+  virtual void draw(nu::context& g) const override;
+  virtual void destroy(memory_pool& pool) override;
+
+  void set(nu::path&& p, const nu::color& color);
+  void set_path(nu::path&& p);
+  void set_color(const nu::color& color);
+  const nu::path& get_path() const;
+  nu::color get_color() const;
+
+private:
+  class content;
+  content* _content;
+
+  friend class vector;
+  filled_path(nu::path&& p, const nu::color& color);
+  static void* operator new(size_t size, memory_pool& pool);
+  static void* operator new(size_t) = delete;
+};
+
+class filled_and_stroked_path : public base {
+public:
+  virtual ~filled_and_stroked_path();
+  virtual bool intersect(const nu::frect& rect) const override;
+  virtual void draw(nu::context& g) const override;
+  virtual void destroy(memory_pool& pool) override;
+
+  void set_path(nu::path&& p);
+  void set_fill_color(const nu::color& color);
+  void set_contour_color(const nu::color& color);
+  void set_line_width(float w);
+  const nu::path& get_path() const;
+  nu::color get_fill_color() const;
+  nu::color get_contour_color() const;
+  float get_line_width() const;
+
+private:
+  class content;
+  content* _content;
+
+  friend class vector;
+  filled_and_stroked_path(nu::path&& p, const nu::color& fill_color, const nu::color& contour_color, float line_width);
   static void* operator new(size_t size, memory_pool& pool);
   static void* operator new(size_t) = delete;
 };

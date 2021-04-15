@@ -7,36 +7,56 @@
 class red_component : public nu::component {
 public:
   red_component() {
-    _color = 0xFF0000FF;
+    _color = 0xFF000055;
+    _img = nu::image(NU_RESOURCES_DIRECTORY "/start@2x.png", 2);
+
+    setup();
   }
 
   virtual void mouse_down(const nu::mouse_event& evt) override {
     fst::print("red_component - mouse_down", evt.get_position());
-    _color = 0x00FF00FF;
+    _color = 0x00FF0055;
     repaint();
   }
   
   virtual void mouse_up(const nu::mouse_event& evt) override {
     fst::print("red_component - mouse_up", evt.get_position());
-    _color = 0xFF0000FF;
+    _color = 0xFF000055;
     repaint();
   }
-  
-  void update() {
-    
+
+  void setup() {
     auto& g = _geometries;
-    g.clear();
-    g.add_rect(nu::frect(5.0f, 5.0f, 10.0f, 10.0f), 0x0000FFFF);
-    g.add_rect_contour(nu::frect(5.0f, 5.0f, 10.0f, 10.0f), 0xFFFFFFFF, 1.0f);
-    g.add_rect_and_contour(nu::frect(25.0f, 5.0f, 10.0f, 10.0f), 0x00FF00FF, 0x000000FF, 1.0f);
+    _bg_img = g.add_image_in_rect(&_img, get_local_bounds());
+    _bg_rect = g.add_filled_rectangle(get_local_bounds(), _color);
+    g.add_filled_rectangle(nu::frect(5.0f, 5.0f, 10.0f, 10.0f), 0x0000FFFF);
+    g.add_stroked_rectangle(nu::frect(5.0f, 5.0f, 10.0f, 10.0f), 0xFFFFFFFF, 1.0f);
+    g.add_filled_and_stroked_rectangle(nu::frect(25.0f, 5.0f, 10.0f, 10.0f), 0x00FF00FF, 0x000000FF, 1.0f);
+
+    namespace geo = nu::geometry;
+    using fs_rect = geo::filled_and_stroked_rectangle;
+    g.add<fs_rect>(nu::frect(30.0f, 10.0f, 10.0f, 10.0f), 0x00FFFFFF, 0x000000FF, 2.0f);
+
+    nu::path p0;
+    p0.add_circle({ 20, 20 }, 5);
+    g.add_filled_path(std::move(p0), 0x33FF33FF);
+
+    nu::path p1;
+    p1.add_circle({ 20, 20 }, 5);
+    g.add_stroked_path(std::move(p1), 0x000000FF, 2.0f);
+
+    nu::path p2;
+    p2.add_circle({ 30, 30 }, 5);
+    g.add_filled_and_stroked_path(std::move(p2), 0xFFFF00FF, 0x000000FF, 1.0f);
+  }
+
+  void update() {
+    nu::rect bounds = get_local_bounds();
+    _bg_img->set_rect(bounds);
+    _bg_rect->set(bounds, _color);
   }
 
   virtual void paint(nu::context& g) override {
-    nu::path p;
-    p.add_rect(get_local_bounds());
-    g.set_color(_color);
-    g.fill_path(p);
-    
     update();
     _geometries.draw(g);
 //    _geometries.draw(g, {0, 0, 10, 10});
@@ -44,7 +64,10 @@ public:
   
   private:
   nu::color _color;
+  nu::image _img;
   nu::geometry::vector _geometries;
+  nu::geometry::image_in_rect* _bg_img = nullptr;
+  nu::geometry::filled_rectangle* _bg_rect = nullptr;
 };
 
 class my_view_content_0 : public nu::component {
